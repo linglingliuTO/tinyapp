@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/linglingliuTO/tinyapp/issues"
   },
-  "homepage": "https://github.com/linglingliuTO/tinyapp#readme"
+  "homepage": "https://github.com/linglingliuTO/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
 }
