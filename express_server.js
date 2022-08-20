@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 3000; // default port 3000
+app.set('view eingine', 'ejs')
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -8,9 +9,17 @@ const urlDatabase = {
 };
 
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  //res.json(urlDatabase);
+});
+
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+app.listen(3000);
+console.log('Server is listening on port 3000');
