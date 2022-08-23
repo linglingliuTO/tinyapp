@@ -20,28 +20,25 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
+
 app.get("/urls", (req, res) => {
   const user = users[req.cookies["user_id"]]
-  const templateVars = { urls: urlDatabase, username: req.cookies["user_id"], user };
+  const templateVars = { urls: urlDatabase, user };
   res.render("urls_index", templateVars);
 
 });
 
-app.get("/hello", (req, res) => {
-  const templateVars = { greeting: "Hello World!" };
-  res.render("partials/_header.ejs", templateVars);
-});
-
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies["user_id"]]
-  const templateVars = { username: req.cookies["user_id"], user };
+  const templateVars = {  user };
   res.render("urls_new", templateVars);
 });
 
 
 app.get("/urls/:id", (req, res) => {
   const user = users[req.cookies["user_id"]]
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["user_id"], user };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id],  user };
   res.render("urls_show", templateVars);
 });
 
@@ -49,21 +46,25 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id]
   res.redirect(longURL);
   const user = users[req.cookies["user_id"]]
-  const templateVars = { urls: urlDatabase, username: req.cookies["user_id"], user };
+  const templateVars = { urls: urlDatabase,  user };
   res.render("urls_index", templateVars);
 });
 
 app.get("/register", (req, res) => {
   const user = users[req.cookies["user_id"]]
-  const templateVars = { username: req.cookies["user_id"], user };
+  const templateVars = {  user };
   res.render("register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  const user = users[req.cookies["user_id"]]
+  const templateVars = { user };
+  res.render("login", templateVars);
+
 });
 
 
 app.post("/urls", (req, res) => {
-  //console.log(req.body); // Log the POST request body to the console
-
-
   const templateVars = { id: newID, longURL: urlDatabase[newID] };
   res.render("urls_show", templateVars);
 });
@@ -77,7 +78,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 app.post("/urls/:id/update", (req, res) => {
   const user = users[req.cookies["user_id"]]
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["user_id"], user };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id],  user };
   res.render("urls_show", templateVars);
 
 });
@@ -90,16 +91,6 @@ app.post("/urls/:id/updateData", (req, res) => {
 });
 
 
-app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.username);
-  const templateVars = {
-    username: req.cookies["user_id"],
-
-
-  };
-  res.redirect("/urls");
-})
-
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id")
@@ -107,17 +98,18 @@ app.post("/logout", (req, res) => {
   res.end()
 })
 
-
-
 app.post("/register", (req, res) => {
 
-  if ((req.body["email"] || req.body["password"]) === "") {
-    res.json({ error: "Username or password is blank" }).sendStatus(400)
-  }
-
-  if (getUserByEmail(users, req.body["email"] )) {
-    res.json({ error: "Username already exist" }).sendStatus(400)
-  }
+  if ((req.body["email"]) === "") {
+    res.status(400)
+    res.json({ error: "Username cannot be blank" })
+  } else if (req.body["password"] === "") {
+    res.status(400)
+    res.json({ error: "password cannot be blank" })
+  } else if (users [getUserByEmail(users, req.body["email"])] !== undefined) {
+    res.status(400)
+    res.json({ error: "Username already exist" })
+  } else {
 
 
   let userRandomID = generateRandomString()
@@ -129,8 +121,37 @@ app.post("/register", (req, res) => {
 
   res.cookie("user_id", userRandomID);
   res.redirect("/urls");
-
+  }
 })
+
+app.post("/login", (req, res) => {
+let userID = getUserByEmail(users, req.body["email"])
+console.log(userID)
+  if ((req.body["email"]) === "") {
+    res.status(403)
+    res.json({ error: "Username cannot be blank" })
+  } else if (req.body["password"] === "") {
+    console.log(userID)
+    res.status(403)
+    res.json({ error: "Password cannot be blank" })
+  }  else if (userID === "") {
+    res.status(403)
+    res.json({ error: "Username does not exist" })
+  }  else if  (users[userID].password !== req.body["password"]) {
+    console.log(users[userID].password)
+    res.status(403)
+    res.json({ error: "Password is incorrect" })
+
+  } else {
+
+  res.cookie("user_id", userID);
+  res.redirect("/urls");
+
+  }
+
+  }
+
+)
 
 
 
@@ -161,10 +182,10 @@ const generateRandomString = () => {
 }
 
 const getUserByEmail = (object, value) => {
-  result = false
+  let result = ""
   for (id in object) {
     if (object[id].email === value) {
-      result = true
+      result = id
     }
   }
   return result
