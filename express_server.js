@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 3000; // default port 3000
 const cookieParser = require('cookie-parser')
+const bcrypt = require("bcryptjs");
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -217,25 +218,34 @@ app.post("/register", (req, res) => {
   if ((req.body["email"]) === "") {
     res.status(400)
     res.json({ error: "Username cannot be blank" })
-  } else if (req.body["password"] === "") {
+    return
+  }
+
+  if (req.body["password"] === "") {
     res.status(400)
     res.json({ error: "password cannot be blank" })
-  } else if (users[getUserByEmail(users, req.body["email"])] !== undefined) {
+    return
+  }
+
+  if (users[getUserByEmail(users, req.body["email"])] !== undefined) {
     res.status(400)
     res.json({ error: "Username already exist" })
-  } else {
-
-
-    let userRandomID = generateRandomString()
-    users[userRandomID] = {
-      "id": userRandomID,
-      "email": req.body["email"],
-      "password": req.body["password"]
-    }
-
-    res.cookie("user_id", userRandomID);
-    res.redirect("/urls");
+    return
   }
+
+
+  let userRandomID = generateRandomString()
+  const password = req.body["password"]; // found in the req.body object
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  users[userRandomID] = {
+    "id": userRandomID,
+    "email": req.body["email"],
+    "password": hashedPassword
+  }
+
+  res.cookie("user_id", userRandomID);
+  res.redirect("/urls");
+
 })
 
 app.post("/login", (req, res) => {
@@ -244,24 +254,30 @@ app.post("/login", (req, res) => {
   if ((req.body["email"]) === "") {
     res.status(403)
     res.json({ error: "Username cannot be blank" })
-  } else if (req.body["password"] === "") {
+    return
+  }
 
+  if (req.body["password"] === "") {
     res.status(403)
     res.json({ error: "Password cannot be blank" })
-  } else if (userID === "") {
+    return
+  }
+
+  if (userID === "") {
     res.status(403)
     res.json({ error: "Username does not exist" })
-  } else if (users[userID].password !== req.body["password"]) {
+    return
+  }
 
-    res.status(403)
-    res.json({ error: "Password is incorrect" })
-  } else {
+  if (bcrypt.compareSync(req.body["password"], users[userID].password)) {
 
     res.cookie("user_id", userID);
     res.redirect("/urls");
-
+    return
   }
 
+  res.status(403)
+  res.json({ error: "Password is incorrect" })
 }
 
 )
