@@ -6,7 +6,7 @@ const cookieSession = require('cookie-session')
 const bcrypt = require("bcryptjs");
 const Keygrip = require("keygrip");
 
-const {getUserByEmail, generateRandomString, urlsForUser} = require('./helper.js')
+const { getUserByEmail, generateRandomString, urlsForUser } = require('./helpers.js')
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
