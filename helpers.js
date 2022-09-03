@@ -23,7 +23,7 @@ const urlsForUser = (userId, urlDatabase) => {
   }
 
   return urls
-}  
+}
 
 
 const getUserByEmail = (object, value) => {
@@ -36,4 +36,4 @@ const getUserByEmail = (object, value) => {
   return result
 }
 
-module.exports = {getUserByEmail, generateRandomString, urlsForUser}
+module.exports = { getUserByEmail, generateRandomString, urlsForUser }

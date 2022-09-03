@@ -64,7 +64,7 @@ app.get("/urls", (req, res) => {
   const urls = urlsForUser(userID, urlDatabase)
 
   if (!user) {
-    res.redirect("/login")
+    res.send("You are not logged in")
     return
 
   }
@@ -114,11 +114,13 @@ app.get("/urls/:id", (req, res) => {
 
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL
-  if (longURL === undefined) {
+  
+  
+  if ( urlDatabase[req.params.id]=== undefined) {
     res.send("Error: short url not found")
     return
   }
+  const longURL = urlDatabase[req.params.id].longURL
   res.redirect(longURL);
 
 });
@@ -156,7 +158,7 @@ app.post("/urls", (req, res) => {
       "longURL": req.body["longURL"],
       "userID": user.id
     }
-    res.redirect("/urls")
+    res.redirect("/urls/"+databaseID)
     return
   }
   res.send("error please login first")
@@ -213,6 +215,12 @@ app.post("/urls/:id/update", (req, res) => {
 app.post("/urls/:id/updateData", (req, res) => {
   urlDatabase[req.params.id].longURL = req.body["updatedlongURL"]
   res.redirect("/urls");
+});
+
+
+app.get("/", (req, res) => {
+  res.redirect("/login");
+
 });
 
 //---------posts login and registers----------------------//
